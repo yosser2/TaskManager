@@ -8,20 +8,29 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ onAdd }) => {
   const [title, setTitle] = useState("");
+  
+  // Récupérer le token JWT depuis le localStorage
+  const token = localStorage.getItem("token");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) return;
 
     try {
-      const res = await axios.post<Task>("http://localhost:3000/tasks", {
-        title,
-        completed: false,
-      });
+      const res = await axios.post<Task>(
+        "http://localhost:3000/tasks",
+        { title, completed: false },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setTitle("");
       onAdd(res.data);
     } catch (err) {
       console.error(err);
+      alert("Erreur : impossible d'ajouter la tâche. Vérifie que tu es connecté.");
     }
   };
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Put, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from './task.entity';
 
@@ -7,22 +7,30 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Get()
-  getAll(): Promise<Task[]> {
-    return this.tasksService.findAll();
+  getAllTasks(): Promise<Task[]> {
+    return this.tasksService.getAllTasks();
+  }
+
+  @Get(':id')
+  getTaskById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
+    return this.tasksService.getTaskById(id);
   }
 
   @Post()
-  create(@Body() taskData: Partial<Task>): Promise<Task> {
-    return this.tasksService.create(taskData);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: number): Promise<void> {
-    return this.tasksService.delete(id);
+  createTask(@Body('title') title: string): Promise<Task> {
+    return this.tasksService.createTask(title);
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() taskData: Partial<Task>): Promise<Task> {
-    return this.tasksService.update(id, taskData);
+  updateTask(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { title: string; completed: boolean },
+  ): Promise<Task> {
+    return this.tasksService.updateTask(id, body.title, body.completed);
+  }
+
+  @Delete(':id')
+  deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.tasksService.deleteTask(id);
   }
 }
